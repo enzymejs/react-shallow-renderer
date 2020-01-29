@@ -24,6 +24,20 @@
     "react-is": "^16.8.6",
     "scheduler": "^0.18.0"
   },
+  "devDependencies": {
+    "@babel/cli": "^7.8.3",
+    "@babel/core": "^7.8.3",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-syntax-class-properties": "^7.8.3",
+    "@babel/plugin-transform-react-jsx-source": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@babel/preset-flow": "^7.8.3",
+    "@babel/preset-react": "^7.8.3",
+    "babel-jest": "^25.1.0",
+    "jest": "^25.1.0",
+    "jest-diff": "^25.1.0",
+    "react": "^16.12.0"
+  },
   "peerDependencies": {
     "react": "^16.0.0"
   },
@@ -35,5 +49,9 @@
     "shallow.js",
     "cjs/",
     "umd/"
-  ]
+  ],
+  "scripts": {
+    "test": "jest",
+    "test:debug": "node --inspect-brk node_modules/jest/bin/jest.js --runInBand --no-cache"
+  }
 }
