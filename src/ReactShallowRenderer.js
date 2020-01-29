@@ -4,63 +4,34 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ *
  */
 
 import React from 'react';
 import {isForwardRef, isMemo, ForwardRef} from 'react-is';
-import describeComponentFrame from 'shared/describeComponentFrame';
-import getComponentName from 'shared/getComponentName';
-import shallowEqual from 'shared/shallowEqual';
-import invariant from 'shared/invariant';
+import describeComponentFrame from './shared/describeComponentFrame';
+import getComponentName from './shared/getComponentName';
+import shallowEqual from './shared/shallowEqual';
+import invariant from './shared/invariant';
 import checkPropTypes from 'prop-types/checkPropTypes';
-import ReactSharedInternals from 'shared/ReactSharedInternals';
-import is from 'shared/objectIs';
-
-import type {Dispatcher as DispatcherType} from 'react-reconciler/src/ReactFiberHooks';
-import type {
-  ReactContext,
-  ReactEventResponderListener,
-} from 'shared/ReactTypes';
-import type {ReactElement} from 'shared/ReactElementType';
-
-type BasicStateAction<S> = (S => S) | S;
-type Dispatch<A> = A => void;
-
-type Update<A> = {|
-  action: A,
-  next: Update<A> | null,
-|};
-
-type UpdateQueue<A> = {|
-  first: Update<A> | null,
-  dispatch: any,
-|};
-
-type Hook = {|
-  memoizedState: any,
-  queue: UpdateQueue<any> | null,
-  next: Hook | null,
-|};
+import ReactSharedInternals from './shared/ReactSharedInternals';
+import is from './shared/objectIs';
 
 const {ReactCurrentDispatcher} = ReactSharedInternals;
 
 const RE_RENDER_LIMIT = 25;
 
 const emptyObject = {};
-if (__DEV__) {
+if (process.env.NODE_ENV !== 'production') {
   Object.freeze(emptyObject);
 }
 
 // In DEV, this is the name of the currently executing primitive hook
-let currentHookNameInDev: ?string;
+let currentHookNameInDev;
 
-function areHookInputsEqual(
-  nextDeps: Array<mixed>,
-  prevDeps: Array<mixed> | null,
-) {
+function areHookInputsEqual(nextDeps, prevDeps) {
   if (prevDeps === null) {
-    if (__DEV__) {
+    if (process.env.NODE_ENV !== 'production') {
       console.error(
         '%s received a final argument during this render, but not during ' +
           'the previous render. Even though the final argument is optional, ' +
@@ -71,7 +42,7 @@ function areHookInputsEqual(
     return false;
   }
 
-  if (__DEV__) {
+  if (process.env.NODE_ENV !== 'production') {
     // Don't bother comparing lengths in prod because these arrays should be
     // passed inline.
     if (nextDeps.length !== prevDeps.length) {
@@ -100,9 +71,6 @@ class Updater {
     this._renderer = renderer;
     this._callbacks = [];
   }
-
-  _renderer: ReactShallowRenderer;
-  _callbacks: Array<any>;
 
   _enqueueCallback(callback, publicInstance) {
     if (typeof callback === 'function' && publicInstance) {
@@ -164,7 +132,7 @@ class Updater {
   }
 }
 
-function createHook(): Hook {
+function createHook() {
   return {
     memoizedState: null,
     queue: null,
@@ -172,7 +140,7 @@ function createHook(): Hook {
   };
 }
 
-function basicStateReducer<S>(state: S, action: BasicStateAction<S>): S {
+function basicStateReducer(state, action) {
   // $FlowFixMe: Flow doesn't like mixed types
   return typeof action === 'function' ? action(state) : action;
 }
@@ -204,22 +172,6 @@ class ReactShallowRenderer {
     this._numberOfReRenders = 0;
   }
 
-  _context: null | Object;
-  _newState: null | Object;
-  _instance: any;
-  _element: null | ReactElement;
-  _rendered: null | mixed;
-  _updater: Updater;
-  _rendering: boolean;
-  _forcedUpdate: boolean;
-  _dispatcher: DispatcherType;
-  _workInProgressHook: null | Hook;
-  _firstWorkInProgressHook: null | Hook;
-  _renderPhaseUpdates: Map<UpdateQueue<any>, Update<any>> | null;
-  _isReRender: boolean;
-  _didScheduleRenderPhaseUpdate: boolean;
-  _numberOfReRenders: number;
-
   _validateCurrentlyRenderingComponent() {
     invariant(
       this._rendering && !this._instance,
@@ -232,27 +184,23 @@ class ReactShallowRenderer {
     );
   }
 
-  _createDispatcher(): DispatcherType {
-    const useReducer = <S, I, A>(
-      reducer: (S, A) => S,
-      initialArg: I,
-      init?: I => S,
-    ): [S, Dispatch<A>] => {
+  _createDispatcher() {
+    const useReducer = (reducer, initialArg, init) => {
       this._validateCurrentlyRenderingComponent();
       this._createWorkInProgressHook();
-      const workInProgressHook: Hook = (this._workInProgressHook: any);
+      const workInProgressHook = this._workInProgressHook;
 
       if (this._isReRender) {
         // This is a re-render.
-        const queue: UpdateQueue<A> = (workInProgressHook.queue: any);
-        const dispatch: Dispatch<A> = (queue.dispatch: any);
+        const queue = workInProgressHook.queue;
+        const dispatch = queue.dispatch;
         if (this._numberOfReRenders > 0) {
           // Apply the new render phase updates to the previous current hook.
           if (this._renderPhaseUpdates !== null) {
             // Render phase updates are stored in a map of queue -> linked list
             const firstRenderPhaseUpdate = this._renderPhaseUpdates.get(queue);
             if (firstRenderPhaseUpdate !== undefined) {
-              (this._renderPhaseUpdates: any).delete(queue);
+              this._renderPhaseUpdates.delete(queue);
               let newState = workInProgressHook.memoizedState;
               let update = firstRenderPhaseUpdate;
               do {
@@ -284,40 +232,32 @@ class ReactShallowRenderer {
         if (reducer === basicStateReducer) {
           // Special case for `useState`.
           initialState =
-            typeof initialArg === 'function'
-              ? ((initialArg: any): () => S)()
-              : ((initialArg: any): S);
+            typeof initialArg === 'function' ? initialArg() : initialArg;
         } else {
-          initialState =
-            init !== undefined ? init(initialArg) : ((initialArg: any): S);
+          initialState = init !== undefined ? init(initialArg) : initialArg;
         }
         workInProgressHook.memoizedState = initialState;
-        const queue: UpdateQueue<A> = (workInProgressHook.queue = {
+        const queue = (workInProgressHook.queue = {
           first: null,
           dispatch: null,
         });
-        const dispatch: Dispatch<A> = (queue.dispatch = (this._dispatchAction.bind(
+        const dispatch = (queue.dispatch = this._dispatchAction.bind(
           this,
           queue,
-        ): any));
+        ));
         return [workInProgressHook.memoizedState, dispatch];
       }
     };
 
-    const useState = <S>(
-      initialState: (() => S) | S,
-    ): [S, Dispatch<BasicStateAction<S>>] => {
+    const useState = initialState => {
       return useReducer(
         basicStateReducer,
         // useReducer has a special case to support lazy useState initializers
-        (initialState: any),
+        initialState,
       );
     };
 
-    const useMemo = <T>(
-      nextCreate: () => T,
-      deps: Array<mixed> | void | null,
-    ): T => {
+    const useMemo = (nextCreate, deps) => {
       this._validateCurrentlyRenderingComponent();
       this._createWorkInProgressHook();
 
@@ -337,30 +277,27 @@ class ReactShallowRenderer {
       }
 
       const nextValue = nextCreate();
-      (this._workInProgressHook: any).memoizedState = [nextValue, nextDeps];
+      this._workInProgressHook.memoizedState = [nextValue, nextDeps];
       return nextValue;
     };
 
-    const useRef = <T>(initialValue: T): {|current: T|} => {
+    const useRef = initialValue => {
       this._validateCurrentlyRenderingComponent();
       this._createWorkInProgressHook();
-      const previousRef = (this._workInProgressHook: any).memoizedState;
+      const previousRef = this._workInProgressHook.memoizedState;
       if (previousRef === null) {
         const ref = {current: initialValue};
-        if (__DEV__) {
+        if (process.env.NODE_ENV !== 'production') {
           Object.seal(ref);
         }
-        (this._workInProgressHook: any).memoizedState = ref;
+        this._workInProgressHook.memoizedState = ref;
         return ref;
       } else {
         return previousRef;
       }
     };
 
-    const readContext = <T>(
-      context: ReactContext<T>,
-      observedBits: void | number | boolean,
-    ): T => {
+    const readContext = (context, observedBits) => {
       return context._currentValue;
     };
 
@@ -368,22 +305,17 @@ class ReactShallowRenderer {
       this._validateCurrentlyRenderingComponent();
     };
 
-    const identity = (fn: Function): Function => {
+    const identity = fn => {
       return fn;
     };
 
-    const useResponder = (
-      responder,
-      props,
-    ): ReactEventResponderListener<any, any> => ({
+    const useResponder = (responder, props) => ({
       props: props,
       responder,
     });
 
     // TODO: implement if we decide to keep the shallow renderer
-    const useTransition = (
-      config,
-    ): [(callback: () => void) => void, boolean] => {
+    const useTransition = config => {
       this._validateCurrentlyRenderingComponent();
       const startTransition = callback => {
         callback();
@@ -392,15 +324,15 @@ class ReactShallowRenderer {
     };
 
     // TODO: implement if we decide to keep the shallow renderer
-    const useDeferredValue = <T>(value: T, config): T => {
+    const useDeferredValue = (value, config) => {
       this._validateCurrentlyRenderingComponent();
       return value;
     };
 
     return {
       readContext,
-      useCallback: (identity: any),
-      useContext: <T>(context: ReactContext<T>): T => {
+      useCallback: identity,
+      useContext: context => {
         this._validateCurrentlyRenderingComponent();
         return readContext(context);
       },
@@ -418,7 +350,7 @@ class ReactShallowRenderer {
     };
   }
 
-  _dispatchAction<A>(queue: UpdateQueue<A>, action: A) {
+  _dispatchAction(queue, action) {
     invariant(
       this._numberOfReRenders < RE_RENDER_LIMIT,
       'Too many re-renders. React limits the number of renders to prevent ' +
@@ -430,7 +362,7 @@ class ReactShallowRenderer {
       // queue -> linked list of updates. After this render pass, we'll restart
       // and apply the stashed updates on top of the work-in-progress hook.
       this._didScheduleRenderPhaseUpdate = true;
-      const update: Update<A> = {
+      const update = {
         action,
         next: null,
       };
@@ -450,7 +382,7 @@ class ReactShallowRenderer {
         lastRenderPhaseUpdate.next = update;
       }
     } else {
-      const update: Update<A> = {
+      const update = {
         action,
         next: null,
       };
@@ -471,7 +403,7 @@ class ReactShallowRenderer {
     }
   }
 
-  _createWorkInProgressHook(): Hook {
+  _createWorkInProgressHook() {
     if (this._workInProgressHook === null) {
       // This is the first hook in the list
       if (this._firstWorkInProgressHook === null) {
@@ -486,8 +418,7 @@ class ReactShallowRenderer {
       if (this._workInProgressHook.next === null) {
         this._isReRender = false;
         // Append to the end of the list
-        this._workInProgressHook = (this
-          ._workInProgressHook: any).next = createHook();
+        this._workInProgressHook = this._workInProgressHook.next = createHook();
       } else {
         // There's already a work-in-progress. Reuse it.
         this._isReRender = true;
@@ -497,7 +428,7 @@ class ReactShallowRenderer {
     return this._workInProgressHook;
   }
 
-  _finishHooks(element: ReactElement, context: null | Object) {
+  _finishHooks(element, context) {
     if (this._didScheduleRenderPhaseUpdate) {
       // Updates were scheduled during the render phase. They are stored in
       // the `renderPhaseUpdates` map. Call the component again, reusing the
@@ -525,7 +456,7 @@ class ReactShallowRenderer {
     return this._rendered;
   }
 
-  render(element: ReactElement | null, context: null | Object = emptyObject) {
+  render(element, context = emptyObject) {
     invariant(
       React.isValidElement(element),
       'ReactShallowRenderer render(): Invalid component element.%s',
@@ -534,7 +465,7 @@ class ReactShallowRenderer {
             'it by passing it to React.createElement.'
         : '',
     );
-    element = ((element: any): ReactElement);
+    element = element;
     // Show a special message for host elements since it's a common case.
     invariant(
       typeof element.type !== 'string',
@@ -672,11 +603,7 @@ class ReactShallowRenderer {
     this._reset();
   }
 
-  _mountClassComponent(
-    elementType: Function,
-    element: ReactElement,
-    context: null | Object,
-  ) {
+  _mountClassComponent(elementType, element, context) {
     this._instance.context = context;
     this._instance.props = element.props;
     this._instance.state = this._instance.state || null;
@@ -713,11 +640,7 @@ class ReactShallowRenderer {
     // because DOM refs are not available.
   }
 
-  _updateClassComponent(
-    elementType: Function,
-    element: ReactElement,
-    context: null | Object,
-  ) {
+  _updateClassComponent(elementType, element, context) {
     const {props} = element;
 
     const oldState = this._instance.state || emptyObject;
