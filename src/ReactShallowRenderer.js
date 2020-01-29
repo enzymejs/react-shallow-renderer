@@ -141,7 +141,6 @@ function createHook() {
 }
 
 function basicStateReducer(state, action) {
-  // $FlowFixMe: Flow doesn't like mixed types
   return typeof action === 'function' ? action(state) : action;
 }
 
@@ -465,7 +464,6 @@ See https://fb.me/react-invalid-hook-call for tips about how to debug and fix th
         }`,
       );
     }
-    element = element;
     // Show a special message for host elements since it's a common case.
     if (!(typeof element.type !== 'string')) {
       throw Error(
