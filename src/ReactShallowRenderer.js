@@ -14,6 +14,7 @@ import getComponentName from './shared/getComponentName';
 import shallowEqual from './shared/shallowEqual';
 import checkPropTypes from 'prop-types/checkPropTypes';
 import ReactSharedInternals from './shared/ReactSharedInternals';
+import {error} from './shared/consoleWithStackDev';
 import is from './shared/objectIs';
 
 const {ReactCurrentDispatcher} = ReactSharedInternals;
@@ -31,7 +32,7 @@ let currentHookNameInDev;
 function areHookInputsEqual(nextDeps, prevDeps) {
   if (prevDeps === null) {
     if (process.env.NODE_ENV !== 'production') {
-      console.error(
+      error(
         '%s received a final argument during this render, but not during ' +
           'the previous render. Even though the final argument is optional, ' +
           'its type cannot change between renders.',
@@ -45,7 +46,7 @@ function areHookInputsEqual(nextDeps, prevDeps) {
     // Don't bother comparing lengths in prod because these arrays should be
     // passed inline.
     if (nextDeps.length !== prevDeps.length) {
-      console.error(
+      error(
         'The final argument passed to %s changed size between renders. The ' +
           'order and size of this array must remain constant.\n\n' +
           'Previous: %s\n' +

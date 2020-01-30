@@ -7,6 +7,7 @@
  *
  */
 
+import {error} from './consoleWithStackDev';
 import {
   REACT_CONTEXT_TYPE,
   REACT_FORWARD_REF_TYPE,
@@ -38,7 +39,7 @@ function getComponentName(type) {
   }
   if (process.env.NODE_ENV !== 'production') {
     if (typeof type.tag === 'number') {
-      console.error(
+      error(
         'Received an unexpected object in getComponentName(). ' +
           'This is likely a bug in React. Please file an issue.',
       );

@@ -7,6 +7,8 @@
  *
  */
 
+import {error} from './consoleWithStackDev';
+
 export const Uninitialized = -1;
 export const Pending = 0;
 export const Resolved = 1;
@@ -28,7 +30,7 @@ export function initializeLazyComponentType(lazyComponent) {
           const defaultExport = moduleObject.default;
           if (process.env.NODE_ENV !== 'production') {
             if (defaultExport === undefined) {
-              console.error(
+              error(
                 'lazy: Expected the result of a dynamic import() call. ' +
                   'Instead received: %s\n\nYour code should look like: \n  ' +
                   "const MyComponent = lazy(() => import('./MyComponent'))",
