@@ -16,7 +16,7 @@ let React;
 describe('ReactShallowRenderer with hooks', () => {
   beforeEach(() => {
     jest.resetModules();
-    createRenderer = require('react-test-renderer/shallow').createRenderer;
+    createRenderer = require('react-shallow-renderer').createRenderer;
     React = require('react');
   });
 

@@ -1,13 +1,9 @@
 {
-  "name": "react-test-renderer",
+  "name": "react-shallow-renderer",
   "version": "16.12.0",
-  "description": "React package for snapshot testing.",
+  "description": "React package for shallow rendering.",
   "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/facebook/react.git",
-    "directory": "packages/react-test-renderer"
-  },
+  "repository": "https://github.com/NMinhNguyen/react-shallow-renderer.git",
   "keywords": [
     "react",
     "react-native",
@@ -15,7 +11,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/facebook/react/issues"
+    "url": "https://github.com/NMinhNguyen/react-shallow-renderer/issues"
   },
   "homepage": "https://reactjs.org/",
   "dependencies": {
