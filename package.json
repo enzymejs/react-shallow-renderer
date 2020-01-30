@@ -17,19 +17,18 @@
   "homepage": "https://reactjs.org/",
   "dependencies": {
     "object-assign": "^4.1.1",
-    "prop-types": "^15.6.2",
-    "react-is": "^16.8.6",
-    "scheduler": "^0.18.0"
+    "prop-types": "^15.7.2",
+    "react-is": "^16.12.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.3",
-    "@babel/core": "^7.8.3",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
     "@babel/plugin-transform-classes": "^7.8.3",
     "@babel/plugin-transform-react-jsx-source": "^7.8.3",
     "@babel/plugin-transform-template-literals": "^7.8.3",
-    "@babel/preset-env": "^7.8.3",
+    "@babel/preset-env": "^7.8.4",
     "@babel/preset-react": "^7.8.3",
     "@rollup/plugin-commonjs": "^11.0.1",
     "@rollup/plugin-node-resolve": "^7.0.0",
