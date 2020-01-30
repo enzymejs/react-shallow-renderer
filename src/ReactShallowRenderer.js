@@ -12,7 +12,6 @@ import {isForwardRef, isMemo, ForwardRef} from 'react-is';
 import describeComponentFrame from './shared/describeComponentFrame';
 import getComponentName from './shared/getComponentName';
 import shallowEqual from './shared/shallowEqual';
-import invariant from './shared/invariant';
 import checkPropTypes from 'prop-types/checkPropTypes';
 import ReactSharedInternals from './shared/ReactSharedInternals';
 import is from './shared/objectIs';
@@ -173,15 +172,13 @@ class ReactShallowRenderer {
   }
 
   _validateCurrentlyRenderingComponent() {
-    invariant(
-      this._rendering && !this._instance,
-      'Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for' +
-        ' one of the following reasons:\n' +
-        '1. You might have mismatching versions of React and the renderer (such as React DOM)\n' +
-        '2. You might be breaking the Rules of Hooks\n' +
-        '3. You might have more than one copy of React in the same app\n' +
-        'See https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem.',
-    );
+    if (!(this._rendering && !this._instance)) {
+      throw Error(`Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem.`);
+    }
   }
 
   _createDispatcher() {
@@ -351,11 +348,11 @@ class ReactShallowRenderer {
   }
 
   _dispatchAction(queue, action) {
-    invariant(
-      this._numberOfReRenders < RE_RENDER_LIMIT,
-      'Too many re-renders. React limits the number of renders to prevent ' +
-        'an infinite loop.',
-    );
+    if (!(this._numberOfReRenders < RE_RENDER_LIMIT)) {
+      throw Error(
+        `Too many re-renders. React limits the number of renders to prevent an infinite loop.`,
+      );
+    }
 
     if (this._rendering) {
       // This is a render phase update. Stash it in a lazily-created map of
@@ -457,35 +454,40 @@ class ReactShallowRenderer {
   }
 
   render(element, context = emptyObject) {
-    invariant(
-      React.isValidElement(element),
-      'ReactShallowRenderer render(): Invalid component element.%s',
-      typeof element === 'function'
-        ? ' Instead of passing a component class, make sure to instantiate ' +
-            'it by passing it to React.createElement.'
-        : '',
-    );
+    if (!React.isValidElement(element)) {
+      throw Error(
+        `ReactShallowRenderer render(): Invalid component element.${
+          typeof element === 'function'
+            ? ' Instead of passing a component class, make sure to instantiate ' +
+              'it by passing it to React.createElement.'
+            : ''
+        }`,
+      );
+    }
     element = element;
     // Show a special message for host elements since it's a common case.
-    invariant(
-      typeof element.type !== 'string',
-      'ReactShallowRenderer render(): Shallow rendering works only with custom ' +
-        'components, not primitives (%s). Instead of calling `.render(el)` and ' +
-        'inspecting the rendered output, look at `el.props` directly instead.',
-      element.type,
-    );
-    invariant(
-      isForwardRef(element) ||
+    if (!(typeof element.type !== 'string')) {
+      throw Error(
+        `ReactShallowRenderer render(): Shallow rendering works only with custom components, not primitives (${element.type}). Instead of calling \`.render(el)\` and inspecting the rendered output, look at \`el.props\` directly instead.`,
+      );
+    }
+    if (
+      !(
+        isForwardRef(element) ||
         typeof element.type === 'function' ||
-        isMemo(element),
-      'ReactShallowRenderer render(): Shallow rendering works only with custom ' +
-        'components, but the provided element type was `%s`.',
-      Array.isArray(element.type)
-        ? 'array'
-        : element.type === null
-        ? 'null'
-        : typeof element.type,
-    );
+        isMemo(element)
+      )
+    ) {
+      throw Error(
+        `ReactShallowRenderer render(): Shallow rendering works only with custom components, but the provided element type was \`${
+          Array.isArray(element.type)
+            ? 'array'
+            : element.type === null
+            ? 'null'
+            : typeof element.type
+        }\`.`,
+      );
+    }
 
     if (this._rendering) {
       return;
@@ -567,11 +569,11 @@ class ReactShallowRenderer {
             // elementType could still be a ForwardRef if it was
             // nested inside Memo.
             if (elementType.$$typeof === ForwardRef) {
-              invariant(
-                typeof elementType.render === 'function',
-                'forwardRef requires a render function but was given %s.',
-                typeof elementType.render,
-              );
+              if (!(typeof elementType.render === 'function')) {
+                throw Error(
+                  `forwardRef requires a render function but was given ${typeof elementType.render}.`,
+                );
+              }
               this._rendered = elementType.render.call(
                 undefined,
                 element.props,
