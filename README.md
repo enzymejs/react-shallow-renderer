@@ -1,26 +1,63 @@
-# `react-test-renderer`
+# `react-shallow-renderer`
 
-This package provides an experimental React renderer that can be used to render React components to pure JavaScript objects, without depending on the DOM or a native mobile environment.
+When writing unit tests for React, shallow rendering can be helpful. Shallow rendering lets you render a component "one level deep" and assert facts about what its render method returns, without worrying about the behavior of child components, which are not instantiated or rendered. This does not require a DOM.
 
-Essentially, this package makes it easy to grab a snapshot of the "DOM tree" rendered by a React DOM or React Native component without using a browser or jsdom.
+## Installation
 
-Documentation:
+```sh
+# npm
+npm install react-shallow-renderer --save-dev
 
-[https://reactjs.org/docs/test-renderer.html](https://reactjs.org/docs/test-renderer.html)
-
-Usage:
-
-```jsx
-const ReactTestRenderer = require('react-test-renderer');
-
-const renderer = ReactTestRenderer.create(
-  <Link page="https://www.facebook.com/">Facebook</Link>
-);
-
-console.log(renderer.toJSON());
-// { type: 'a',
-//   props: { href: 'https://www.facebook.com/' },
-//   children: [ 'Facebook' ] }
+# Yarn
+yarn add react-shallow-renderer --dev
 ```
 
-You can also use Jest's snapshot testing feature to automatically save a copy of the JSON tree to a file and check in your tests that it hasn't changed: https://facebook.github.io/jest/blog/2016/07/27/jest-14.html.
+## Usage
+
+For example, if you have the following component:
+
+```jsx
+function MyComponent() {
+  return (
+    <div>
+      <span className="heading">Title</span>
+      <Subcomponent foo="bar" />
+    </div>
+  );
+}
+```
+
+Then you can assert:
+
+```jsx
+import ShallowRenderer from 'react-shallow-renderer';
+// in your test:
+const renderer = new ShallowRenderer();
+renderer.render(<MyComponent />);
+const result = renderer.getRenderOutput();
+expect(result.type).toBe('div');
+expect(result.props.children).toEqual([
+  <span className="heading">Title</span>,
+  <Subcomponent foo="bar" />,
+]);
+```
+
+Shallow testing currently has some limitations, namely not supporting refs.
+
+> Note:
+>
+> We also recommend checking out Enzyme's [Shallow Rendering API](https://airbnb.io/enzyme/docs/api/shallow.html). It provides a nicer higher-level API over the same functionality.
+
+## Reference
+
+### `shallowRenderer.render()`
+
+You can think of the shallowRenderer as a "place" to render the component you're testing, and from which you can extract the component's output.
+
+`shallowRenderer.render()` is similar to [`ReactDOM.render()`](https://reactjs.org/docs/react-dom.html#render) but it doesn't require DOM and only renders a single level deep. This means you can test components isolated from how their children are implemented.
+
+### `shallowRenderer.getRenderOutput()`
+
+After `shallowRenderer.render()` has been called, you can use `shallowRenderer.getRenderOutput()` to get the shallowly rendered output.
+
+You can then begin to assert facts about the output.

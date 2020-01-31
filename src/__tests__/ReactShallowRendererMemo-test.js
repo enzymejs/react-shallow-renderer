@@ -18,7 +18,7 @@ describe('ReactShallowRendererMemo', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    createRenderer = require('react-test-renderer/shallow').createRenderer;
+    createRenderer = require('react-shallow-renderer').createRenderer;
     PropTypes = require('prop-types');
     React = require('react');
   });
