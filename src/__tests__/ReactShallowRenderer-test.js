@@ -8,21 +8,13 @@
  * @jest-environment node
  */
 
-'use strict';
+import * as PropTypes from 'prop-types';
+import * as React from 'react';
+import ReactShallowRenderer from 'react-shallow-renderer';
 
-let createRenderer;
-let PropTypes;
-let React;
+const createRenderer = ReactShallowRenderer.createRenderer;
 
 describe('ReactShallowRenderer', () => {
-  beforeEach(() => {
-    jest.resetModules();
-
-    createRenderer = require('react-shallow-renderer').createRenderer;
-    PropTypes = require('prop-types');
-    React = require('react');
-  });
-
   it('should call all of the legacy lifecycle hooks', () => {
     const logs = [];
     const logger = message => () => logs.push(message) || true;

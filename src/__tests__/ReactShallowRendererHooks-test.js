@@ -8,18 +8,12 @@
  * @jest-environment node
  */
 
-'use strict';
+import * as React from 'react';
+import ReactShallowRenderer from 'react-shallow-renderer';
 
-let createRenderer;
-let React;
+const createRenderer = ReactShallowRenderer.createRenderer;
 
 describe('ReactShallowRenderer with hooks', () => {
-  beforeEach(() => {
-    jest.resetModules();
-    createRenderer = require('react-shallow-renderer').createRenderer;
-    React = require('react');
-  });
-
   it('should work with useState', () => {
     function SomeComponent({defaultName}) {
       const [name] = React.useState(defaultName);
