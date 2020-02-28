@@ -12,12 +12,12 @@ import {isForwardRef, isMemo, ForwardRef} from 'react-is';
 import describeComponentFrame from './shared/describeComponentFrame';
 import getComponentName from './shared/getComponentName';
 import shallowEqual from './shared/shallowEqual';
-import checkPropTypes from 'prop-types/checkPropTypes';
+import checkPropTypes from './shared/checkPropTypes';
 import ReactSharedInternals from './shared/ReactSharedInternals';
 import {error} from './shared/consoleWithStackDev';
 import is from './shared/objectIs';
 
-const {ReactCurrentDispatcher} = ReactSharedInternals;
+const {ReactCurrentDispatcher, ReactDebugCurrentFrame} = ReactSharedInternals;
 
 const RE_RENDER_LIMIT = 25;
 
@@ -503,91 +503,100 @@ See https://fb.me/react-invalid-hook-call for tips about how to debug and fix th
     this._context = getMaskedContext(elementType.contextTypes, context);
 
     // Inner memo component props aren't currently validated in createElement.
-    if (isMemo(element) && elementType.propTypes) {
-      currentlyValidatingElement = element;
-      checkPropTypes(
-        elementType.propTypes,
-        element.props,
-        'prop',
-        getComponentName(elementType),
-        getStackAddendum,
-      );
+    let prevGetStack;
+    if (process.env.NODE_ENV !== 'production') {
+      prevGetStack = ReactDebugCurrentFrame.getCurrentStack;
+      ReactDebugCurrentFrame.getCurrentStack = getStackAddendum;
     }
-
-    if (this._instance) {
-      this._updateClassComponent(elementType, element, this._context);
-    } else {
-      if (shouldConstruct(elementType)) {
-        this._instance = new elementType(
+    try {
+      if (isMemo(element) && elementType.propTypes) {
+        currentlyValidatingElement = element;
+        checkPropTypes(
+          elementType.propTypes,
           element.props,
-          this._context,
-          this._updater,
+          'prop',
+          getComponentName(elementType),
         );
-        if (typeof elementType.getDerivedStateFromProps === 'function') {
-          const partialState = elementType.getDerivedStateFromProps.call(
-            null,
-            element.props,
-            this._instance.state,
-          );
-          if (partialState != null) {
-            this._instance.state = Object.assign(
-              {},
-              this._instance.state,
-              partialState,
-            );
-          }
-        }
+      }
 
-        if (elementType.contextTypes) {
-          currentlyValidatingElement = element;
-          checkPropTypes(
-            elementType.contextTypes,
-            this._context,
-            'context',
-            getName(elementType, this._instance),
-            getStackAddendum,
-          );
-
-          currentlyValidatingElement = null;
-        }
-
-        this._mountClassComponent(elementType, element, this._context);
+      if (this._instance) {
+        this._updateClassComponent(elementType, element, this._context);
       } else {
-        let shouldRender = true;
-        if (isMemo(element) && previousElement !== null) {
-          // This is a Memo component that is being re-rendered.
-          const compare = element.type.compare || shallowEqual;
-          if (compare(previousElement.props, element.props)) {
-            shouldRender = false;
-          }
-        }
-        if (shouldRender) {
-          const prevDispatcher = ReactCurrentDispatcher.current;
-          ReactCurrentDispatcher.current = this._dispatcher;
-          try {
-            // elementType could still be a ForwardRef if it was
-            // nested inside Memo.
-            if (elementType.$$typeof === ForwardRef) {
-              if (!(typeof elementType.render === 'function')) {
-                throw Error(
-                  `forwardRef requires a render function but was given ${typeof elementType.render}.`,
-                );
-              }
-              this._rendered = elementType.render.call(
-                undefined,
-                element.props,
-                element.ref,
+        if (shouldConstruct(elementType)) {
+          this._instance = new elementType(
+            element.props,
+            this._context,
+            this._updater,
+          );
+          if (typeof elementType.getDerivedStateFromProps === 'function') {
+            const partialState = elementType.getDerivedStateFromProps.call(
+              null,
+              element.props,
+              this._instance.state,
+            );
+            if (partialState != null) {
+              this._instance.state = Object.assign(
+                {},
+                this._instance.state,
+                partialState,
               );
-            } else {
-              this._rendered = elementType(element.props, this._context);
             }
-          } finally {
-            ReactCurrentDispatcher.current = prevDispatcher;
           }
-          this._finishHooks(element, context);
+
+          if (elementType.contextTypes) {
+            currentlyValidatingElement = element;
+            checkPropTypes(
+              elementType.contextTypes,
+              this._context,
+              'context',
+              getName(elementType, this._instance),
+            );
+
+            currentlyValidatingElement = null;
+          }
+
+          this._mountClassComponent(elementType, element, this._context);
+        } else {
+          let shouldRender = true;
+          if (isMemo(element) && previousElement !== null) {
+            // This is a Memo component that is being re-rendered.
+            const compare = element.type.compare || shallowEqual;
+            if (compare(previousElement.props, element.props)) {
+              shouldRender = false;
+            }
+          }
+          if (shouldRender) {
+            const prevDispatcher = ReactCurrentDispatcher.current;
+            ReactCurrentDispatcher.current = this._dispatcher;
+            try {
+              // elementType could still be a ForwardRef if it was
+              // nested inside Memo.
+              if (elementType.$$typeof === ForwardRef) {
+                if (!(typeof elementType.render === 'function')) {
+                  throw Error(
+                    `forwardRef requires a render function but was given ${typeof elementType.render}.`,
+                  );
+                }
+                this._rendered = elementType.render.call(
+                  undefined,
+                  element.props,
+                  element.ref,
+                );
+              } else {
+                this._rendered = elementType(element.props, this._context);
+              }
+            } finally {
+              ReactCurrentDispatcher.current = prevDispatcher;
+            }
+            this._finishHooks(element, context);
+          }
         }
       }
-    }
+    } finally {
+      if (process.env.NODE_ENV !== 'production') {
+        ReactDebugCurrentFrame.getCurrentStack = prevGetStack;
+      }
+   }
 
     this._rendering = false;
     this._updater._invokeCallbacks();
