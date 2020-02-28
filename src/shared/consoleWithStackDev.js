@@ -41,6 +41,7 @@ function printWarning(level, format, args) {
     argsWithFormat.unshift('Warning: ' + format);
     // We intentionally don't use spread (or .apply) directly because it
     // breaks IE9: https://github.com/facebook/react/issues/13610
+    // eslint-disable-next-line no-console
     Function.prototype.apply.call(console[level], console, argsWithFormat);
 
     try {
