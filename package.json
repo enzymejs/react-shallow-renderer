@@ -1,6 +1,6 @@
 {
   "name": "react-shallow-renderer",
-  "version": "16.12.0",
+  "version": "16.13.0",
   "description": "React package for shallow rendering.",
   "main": "index.js",
   "module": "esm/index.js",
