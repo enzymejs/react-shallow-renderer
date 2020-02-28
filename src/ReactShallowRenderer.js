@@ -596,7 +596,7 @@ See https://fb.me/react-invalid-hook-call for tips about how to debug and fix th
       if (process.env.NODE_ENV !== 'production') {
         ReactDebugCurrentFrame.getCurrentStack = prevGetStack;
       }
-   }
+    }
 
     this._rendering = false;
     this._updater._invokeCallbacks();
