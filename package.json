@@ -3,7 +3,6 @@
   "version": "16.13.0",
   "description": "React package for shallow rendering.",
   "main": "index.js",
-  "module": "esm/index.js",
   "repository": "https://github.com/NMinhNguyen/react-shallow-renderer.git",
   "keywords": [
     "react",
