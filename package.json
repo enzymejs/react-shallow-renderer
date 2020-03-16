@@ -1,6 +1,6 @@
 {
   "name": "react-shallow-renderer",
-  "version": "16.13.0",
+  "version": "16.13.1",
   "description": "React package for shallow rendering.",
   "main": "index.js",
   "repository": "https://github.com/NMinhNguyen/react-shallow-renderer.git",
