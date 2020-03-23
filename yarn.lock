@@ -627,9 +627,9 @@
     "@babel/plugin-syntax-jsx" "^7.8.3"
 
 "@babel/plugin-transform-react-jsx-source@^7.8.3":
-  version "7.8.3"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-react-jsx-source/-/plugin-transform-react-jsx-source-7.8.3.tgz#951e75a8af47f9f120db731be095d2b2c34920e0"
-  integrity sha512-PLMgdMGuVDtRS/SzjNEQYUT8f4z1xb2BAT54vM1X5efkVuYBf5WyGUMbpmARcfq3NaglIwz08UVQK4HHHbC6ag==
+  version "7.9.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-react-jsx-source/-/plugin-transform-react-jsx-source-7.9.0.tgz#89ef93025240dd5d17d3122294a093e5e0183de0"
+  integrity sha512-K6m3LlSnTSfRkM6FcRk8saNEeaeyG5k7AVkBU2bZK3+1zdkSED3qNdsWrUgQBeTVD2Tp3VMmerxVO2yM5iITmw==
   dependencies:
     "@babel/helper-plugin-utils" "^7.8.3"
     "@babel/plugin-syntax-jsx" "^7.8.3"
