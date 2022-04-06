@@ -1,8 +1,8 @@
 # `react-shallow-renderer`
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/NMinhNguyen/react-shallow-renderer/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/enzymejs/react-shallow-renderer/blob/master/LICENSE)
 [![npm version](https://img.shields.io/npm/v/react-shallow-renderer)](https://www.npmjs.com/package/react-shallow-renderer)
-[![CircleCI](https://img.shields.io/circleci/build/github/NMinhNguyen/react-shallow-renderer)](https://circleci.com/gh/NMinhNguyen/react-shallow-renderer/tree/master)
+[![CircleCI](https://img.shields.io/circleci/build/github/enzymejs/react-shallow-renderer)](https://circleci.com/gh/enzymejs/react-shallow-renderer/tree/master)
 
 When writing unit tests for React, shallow rendering can be helpful. Shallow rendering lets you render a component "one level deep" and assert facts about what its render method returns, without worrying about the behavior of child components, which are not instantiated or rendered. This does not require a DOM.
 
