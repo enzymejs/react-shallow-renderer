@@ -1210,8 +1210,8 @@ describe('ReactShallowRenderer', () => {
       shallowRenderer.render(React.createElement(SimpleComponent, {name: 123})),
     ).toErrorDev(
       'Warning: Failed prop type: Invalid prop `name` of type `number` ' +
-        'supplied to `SimpleComponent`, expected `string`.\n' +
-        '    in SimpleComponent',
+        'supplied to `SimpleComponent`, expected `string`.',
+      {withoutStack: true},
     );
   });
 

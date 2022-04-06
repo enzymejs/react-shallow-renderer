@@ -233,8 +233,12 @@ describe('ReactShallowRenderer with hooks', () => {
         effectsCalled.push('useEffect');
       });
 
+      React.useInsertionEffect(() => {
+        effectsCalled.push('useInsertionEffect');
+      });
+
       React.useLayoutEffect(() => {
-        effectsCalled.push('useEffect');
+        effectsCalled.push('useLayoutEffect');
       });
 
       return <div>Hello world</div>;
@@ -481,5 +485,75 @@ describe('ReactShallowRenderer with hooks', () => {
     _updateCount(x => x - 10);
     result = shallowRenderer.render(element);
     expect(result).toEqual(5);
+  });
+
+  it('should work with useId', () => {
+    function SomeComponent({defaultName}) {
+      const id = React.useId();
+      const id2 = React.useId();
+
+      return (
+        <div>
+          <div id={id} />
+          <div id={id2} />
+        </div>
+      );
+    }
+
+    const shallowRenderer = createRenderer();
+    let result = shallowRenderer.render(<SomeComponent />);
+
+    expect(result).toEqual(
+      <div>
+        <div id=":r1:" />
+        <div id=":r2:" />
+      </div>,
+    );
+
+    result = shallowRenderer.render(<SomeComponent />);
+
+    expect(result).toEqual(
+      <div>
+        <div id=":r1:" />
+        <div id=":r2:" />
+      </div>,
+    );
+  });
+
+  it('should work with useSyncExternalStore', () => {
+    function createExternalStore(initialState) {
+      const listeners = new Set();
+      let currentState = initialState;
+      return {
+        set(text) {
+          currentState = text;
+          listeners.forEach(listener => listener());
+        },
+        subscribe(listener) {
+          listeners.add(listener);
+          return () => listeners.delete(listener);
+        },
+        getState() {
+          return currentState;
+        },
+        getSubscriberCount() {
+          return listeners.size;
+        },
+      };
+    }
+
+    const store = createExternalStore('hello');
+
+    function SomeComponent() {
+      const value = React.useSyncExternalStore(store.subscribe, store.getState);
+      return <div>{value}</div>;
+    }
+
+    const shallowRenderer = createRenderer();
+    let result = shallowRenderer.render(<SomeComponent />);
+    expect(result).toEqual(<div>hello</div>);
+    store.set('goodbye');
+    result = shallowRenderer.render(<SomeComponent />);
+    expect(result).toEqual(<div>goodbye</div>);
   });
 });
