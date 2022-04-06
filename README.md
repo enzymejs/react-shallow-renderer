@@ -1,6 +1,6 @@
 # `react-shallow-renderer`
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/NMinhNguyen/react-shallow-renderer/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/enzymejs/react-shallow-renderer/blob/master/LICENSE)
 [![npm version](https://img.shields.io/npm/v/react-shallow-renderer)](https://www.npmjs.com/package/react-shallow-renderer)
 [![CircleCI](https://img.shields.io/circleci/build/github/enzymejs/react-shallow-renderer)](https://circleci.com/gh/enzymejs/react-shallow-renderer/tree/master)
 
