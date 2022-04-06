@@ -169,6 +169,7 @@ class ReactShallowRenderer {
     this._didScheduleRenderPhaseUpdate = false;
     this._renderPhaseUpdates = null;
     this._numberOfReRenders = 0;
+    this._idCounter = 0;
   }
 
   _validateCurrentlyRenderingComponent() {
@@ -311,7 +312,6 @@ See https://fb.me/react-invalid-hook-call for tips about how to debug and fix th
       responder,
     });
 
-    // TODO: implement if we decide to keep the shallow renderer
     const useTransition = config => {
       this._validateCurrentlyRenderingComponent();
       const startTransition = callback => {
@@ -320,10 +320,20 @@ See https://fb.me/react-invalid-hook-call for tips about how to debug and fix th
       return [startTransition, false];
     };
 
-    // TODO: implement if we decide to keep the shallow renderer
     const useDeferredValue = (value, config) => {
       this._validateCurrentlyRenderingComponent();
       return value;
+    };
+
+    const useId = () => {
+      this._validateCurrentlyRenderingComponent();
+      const nextId = ++this._idCounter;
+      return ':r' + nextId + ':';
+    };
+
+    const useSyncExternalStore = (subscribe, getSnapshot) => {
+      this._validateCurrentlyRenderingComponent();
+      return getSnapshot();
     };
 
     return {
@@ -337,13 +347,16 @@ See https://fb.me/react-invalid-hook-call for tips about how to debug and fix th
       useEffect: noOp,
       useImperativeHandle: noOp,
       useLayoutEffect: noOp,
+      useInsertionEffect: noOp,
       useMemo,
       useReducer,
       useRef,
       useState,
       useResponder,
+      useId,
       useTransition,
       useDeferredValue,
+      useSyncExternalStore,
     };
   }
 
@@ -437,11 +450,13 @@ See https://fb.me/react-invalid-hook-call for tips about how to debug and fix th
       // Start over from the beginning of the list
       this._workInProgressHook = null;
       this._rendering = false;
+      this._idCounter = 0;
       this.render(element, context);
     } else {
       this._workInProgressHook = null;
       this._renderPhaseUpdates = null;
       this._numberOfReRenders = 0;
+      this._idCounter = 0;
     }
   }
 
