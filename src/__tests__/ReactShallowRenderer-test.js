@@ -1211,7 +1211,8 @@ describe('ReactShallowRenderer', () => {
     ).toErrorDev(
       'Warning: Failed prop type: Invalid prop `name` of type `number` ' +
         'supplied to `SimpleComponent`, expected `string`.\n' +
-        '    in SimpleComponent',
+        '    at SimpleComponent',
+      {withoutStack: true},
     );
   });
 
