@@ -515,7 +515,7 @@ See https://fb.me/react-invalid-hook-call for tips about how to debug and fix th
 
     this._rendering = true;
     this._element = element;
-    this._context = element.contextType
+    this._context = elementType.contextType
       ? context
       : getMaskedContext(elementType.contextTypes, context);
 
